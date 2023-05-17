@@ -22,7 +22,7 @@ import random
 
 
 # define function that recursively paints the painting
-def paint_mondrian(n, ax=None, xmin=0, xmax=1, ymin=0, ymax=1):
+def paint_mondrian(n, linewidth=8, ax=None, xmin=0, xmax=1, ymin=0, ymax=1):
     """
     Recursive Mondrian Generator
 
@@ -34,7 +34,9 @@ def paint_mondrian(n, ax=None, xmin=0, xmax=1, ymin=0, ymax=1):
     ----------
     n : int, greater than or equal to 1
         the recursive order of the painting.
-        This is the only input which should be specified by the user.
+
+    linewidth: float, optional
+        The width of the black lines drawn. Default is 8. For n>=5, recommend decreasing linewidth.
 
     ax : matplotlib axes object, optional
         Used in recursion, should not be specified manually by user.
@@ -90,21 +92,45 @@ def paint_mondrian(n, ax=None, xmin=0, xmax=1, ymin=0, ymax=1):
     ysplit = random.triangular(ymin, ymax)
 
     # plot new splits as a horizontal and vertical line
-    ax.axvline(xsplit, ymin, ymax, color="k", linewidth=8)
-    ax.axhline(ysplit, xmin, xmax, color="k", linewidth=8)
+    ax.axvline(xsplit, ymin, ymax, color="k", linewidth=linewidth)
+    ax.axhline(ysplit, xmin, xmax, color="k", linewidth=linewidth)
 
     # recurse on each of 4 subrectangles
     paint_mondrian(
-        n - 1, ax=ax, xmin=xmin, xmax=xsplit, ymin=ymin, ymax=ysplit
+        n - 1,
+        ax=ax,
+        xmin=xmin,
+        xmax=xsplit,
+        ymin=ymin,
+        ymax=ysplit,
+        linewidth=linewidth,
     )
     paint_mondrian(
-        n - 1, ax=ax, xmin=xsplit, xmax=xmax, ymin=ymin, ymax=ysplit
+        n - 1,
+        ax=ax,
+        xmin=xsplit,
+        xmax=xmax,
+        ymin=ymin,
+        ymax=ysplit,
+        linewidth=linewidth,
     )
     paint_mondrian(
-        n - 1, ax=ax, xmin=xmin, xmax=xsplit, ymin=ysplit, ymax=ymax
+        n - 1,
+        ax=ax,
+        xmin=xmin,
+        xmax=xsplit,
+        ymin=ysplit,
+        ymax=ymax,
+        linewidth=linewidth,
     )
     paint_mondrian(
-        n - 1, ax=ax, xmin=xsplit, xmax=xmax, ymin=ysplit, ymax=ymax
+        n - 1,
+        ax=ax,
+        xmin=xsplit,
+        xmax=xmax,
+        ymin=ysplit,
+        ymax=ymax,
+        linewidth=linewidth,
     )
 
     return ax
@@ -112,4 +138,5 @@ def paint_mondrian(n, ax=None, xmin=0, xmax=1, ymin=0, ymax=1):
 
 # paint the painting
 ax = paint_mondrian(3)
+# ax = paint_mondrian(8, linewidth=1)
 plt.show()
