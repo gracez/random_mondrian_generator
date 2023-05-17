@@ -19,7 +19,6 @@ run `paint_mondrian(n)` followed by `plt.show()`
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import random
-from itertools import product
 
 
 # define function that recursively paints the painting
@@ -67,34 +66,32 @@ def paint_mondrian(n, ax=None, xmin=0, xmax=1, ymin=0, ymax=1):
         fig, ax = plt.subplots(figsize=[10, 10])
         ax.set_axis_off()  # turn off axis tick marks and labels
 
+    # if this is the base case, color in the rectangle and return
+    if n == 0:
+        # choose a color randomly: white, black, red, gold, or blue
+        c = random.choices(
+            ["w", "#28282B", "r", "gold", "#26619c"],
+            weights=[6, 1, 1, 1, 1],  # white is the most likely choice
+        )
+
+        # get dimensions of the rectangle
+        corner_coord = (xmin, ymin)  # coords for bottom left corner
+        width = xmax - xmin
+        height = ymax - ymin
+
+        # shade in the rectangle
+        ax.add_patch(Rectangle(corner_coord, width, height, color=c[0]))
+
+        return None
+
     # randomly generate new x and y split coordinates
+    # (triangular distribution gives better aesthetic result than uniform)
     xsplit = random.triangular(xmin, xmax)
     ysplit = random.triangular(ymin, ymax)
 
     # plot new splits as a horizontal and vertical line
     ax.axvline(xsplit, ymin, ymax, color="k", linewidth=8)
     ax.axhline(ysplit, xmin, xmax, color="k", linewidth=8)
-
-    # if base case, color in the 4 subrectangles, plot, and return
-    if n == 1:
-
-        # choose 4 colors randomly: white, black, red, gold, or blue
-        c = random.choices(
-            ["w", "#28282B", "r", "gold", "#26619c"],
-            weights=[6, 1, 1, 1, 1],  # white is the most likely choice
-            k=4,
-        )
-
-        # get dimensions of the 4 subrectangles
-        corner_coord = (xsplit, ysplit)
-        widths = [xmax - xsplit, xmin - xsplit]
-        heights = [ymax - ysplit, ymin - ysplit]
-
-        # shade in the 4 subrectangles
-        for i, (width, height) in zip(range(4), product(widths, heights)):
-            ax.add_patch(Rectangle(corner_coord, width, height, color=c[i]))
-
-        return ax
 
     # recurse on each of 4 subrectangles
     paint_mondrian(
@@ -110,7 +107,9 @@ def paint_mondrian(n, ax=None, xmin=0, xmax=1, ymin=0, ymax=1):
         n - 1, ax=ax, xmin=xsplit, xmax=xmax, ymin=ysplit, ymax=ymax
     )
 
+    return ax
+
 
 # paint the painting
-paint_mondrian(3)
+ax = paint_mondrian(3)
 plt.show()
