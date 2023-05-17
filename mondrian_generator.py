@@ -64,7 +64,7 @@ def paint_mondrian(n, ax=None, xmin=0, xmax=1, ymin=0, ymax=1):
 
     # if this is the outermost recursion layer, initialize a new square canvas
     if ax is None:
-        fig, ax = plt.subplots(figsize=[3 * n, 3 * n])
+        fig, ax = plt.subplots(figsize=[10, 10])
         ax.set_axis_off()  # turn off axis tick marks and labels
 
     # randomly generate new x and y split coordinates
@@ -112,5 +112,5 @@ def paint_mondrian(n, ax=None, xmin=0, xmax=1, ymin=0, ymax=1):
 
 
 # paint the painting
-paint_mondrian(5)
+paint_mondrian(3)
 plt.show()
