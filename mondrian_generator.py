@@ -6,137 +6,93 @@
 
 Recursive Mondrian Generator
 
-- To create a Mondrian painting of order n, 
-run `paint_mondrian(n)` followed by `plt.show()`
-
-- The larger the choice of n, the more complicated the painting
-
-- recommended n between 2 and 4
-
 """
 
 # import necessary modules
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import random
+import numpy as np
 
 
-# define function that recursively paints the painting
-def paint_mondrian(n, linewidth=8, ax=None, xmin=0, xmax=1, ymin=0, ymax=1):
+# define function that generates the painting
+def paint_mondrian(n=3, width=10, height=10):
     """
     Recursive Mondrian Generator
 
-    - To create a Mondrian painting of order n, run `paint_mondrian(n)` followed by `plt.show()`
-    - The larger the choice of n, the more complicated the painting (more lines and rectangles)
-    - recommended n between 2 and 4
+    - To create a Mondrian painting of recursive order n, run `paint_mondrian(n)` followed by `plt.show()`
+    - The larger the choice of n, the more complicated the painting (more lines and rectangles).
+    - Recommended 2 <= n <= 4.
+    - Default canvas is square, but custom dimensions may be optionally specified.
 
     Parameters
     ----------
-    n : int, greater than or equal to 1
-        the recursive order of the painting.
-
-    linewidth: float, optional
-        The width of the black lines drawn. Default is 8. For n>=5, recommend decreasing linewidth.
-
-    ax : matplotlib axes object, optional
-        Used in recursion, should not be specified manually by user.
-
-    xmin : float, optional
-        left coordinate of current subcanvas.
-        Used in recursion, should not be specified manually by user.
-
-    xmax : float, optional
-        right coordinate of current subcanvas.
-        Used in recursion, should not be specified manually by user.
-
-    ymin : float, optional
-        bottom coordinate of current subcanvas.
-        Used in recursion, should not be specified manually by user.
-
-    ymax : float, optional
-        top coordinate of current subcanvas.
-        Used in recursion, should not be specified manually by user.
+    n : int greater than or equal to 1, optional
+        The recursive order of the painting. Default is 3.
+    width: float, optional
+        Width of the figure generated. Default is 10.
+    height: float, optional
+        Height of the figure generated. Default is 10.
 
     Returns
     -------
+    fig: matplotlib figure object
+
     ax : matplotlib axes object
 
     """
 
-    # if this is the outermost recursion layer, initialize a new square canvas
-    if ax is None:
-        fig, ax = plt.subplots(figsize=[10, 10])
-        ax.set_axis_off()  # turn off axis tick marks and labels
+    # initialize a new canvas
+    fig, ax = plt.subplots(figsize=[width, height])
+    ax.set_axis_off()  # turn off axis tick marks and labels
 
-    # if this is the base case, color in the rectangle and return
-    if n == 0:
-        # choose a color randomly: white, black, red, gold, or blue
-        c = random.choices(
-            ["w", "#28282B", "r", "gold", "#26619c"],
-            weights=[6, 1, 1, 1, 1],  # white is the most likely choice
-        )
+    # set width of the black lines to be drawn:
+    # larger n or smaller figure dimensions correspond to smaller linewidth
+    linewidth = 1.5 * min(width, height) * np.exp((1 - n) / 2.5)
 
-        # get dimensions of the rectangle
-        corner_coord = (xmin, ymin)  # coords for bottom left corner
-        width = xmax - xmin
-        height = ymax - ymin
+    # helper function that makes the painting recursively
+    def helper(n, xmin=0, xmax=1, ymin=0, ymax=1):
 
-        # shade in the rectangle
-        ax.add_patch(Rectangle(corner_coord, width, height, color=c[0]))
+        # if this is the base case, color in the rectangle and return
+        if n == 0:
+            # choose a color randomly: white, black, red, gold, or blue
+            c = random.choices(
+                ["w", "#28282B", "r", "gold", "#26619c"],
+                weights=[6, 1, 1, 1, 1],  # white is the most likely choice
+            )
+
+            # get dimensions of the rectangle
+            corner_coord = (xmin, ymin)  # coords for bottom left corner
+            width, height = xmax - xmin, ymax - ymin
+
+            # shade in the rectangle
+            ax.add_patch(Rectangle(corner_coord, width, height, color=c[0]))
+
+            return None
+
+        # otherwise randomly generate new x and y split coordinates
+        # (triangular distribution gives better visual result than uniform)
+        xsplit = random.triangular(xmin, xmax)
+        ysplit = random.triangular(ymin, ymax)
+
+        # plot new splits as a horizontal and vertical line
+        ax.axvline(xsplit, ymin, ymax, color="k", linewidth=linewidth)
+        ax.axhline(ysplit, xmin, xmax, color="k", linewidth=linewidth)
+
+        # recurse on each of 4 subrectangles
+        helper(n - 1, xmin=xmin, xmax=xsplit, ymin=ymin, ymax=ysplit)
+        helper(n - 1, xmin=xsplit, xmax=xmax, ymin=ymin, ymax=ysplit)
+        helper(n - 1, xmin=xmin, xmax=xsplit, ymin=ysplit, ymax=ymax)
+        helper(n - 1, xmin=xsplit, xmax=xmax, ymin=ysplit, ymax=ymax)
 
         return None
 
-    # randomly generate new x and y split coordinates
-    # (triangular distribution gives better aesthetic result than uniform)
-    xsplit = random.triangular(xmin, xmax)
-    ysplit = random.triangular(ymin, ymax)
-
-    # plot new splits as a horizontal and vertical line
-    ax.axvline(xsplit, ymin, ymax, color="k", linewidth=linewidth)
-    ax.axhline(ysplit, xmin, xmax, color="k", linewidth=linewidth)
-
-    # recurse on each of 4 subrectangles
-    paint_mondrian(
-        n - 1,
-        ax=ax,
-        xmin=xmin,
-        xmax=xsplit,
-        ymin=ymin,
-        ymax=ysplit,
-        linewidth=linewidth,
-    )
-    paint_mondrian(
-        n - 1,
-        ax=ax,
-        xmin=xsplit,
-        xmax=xmax,
-        ymin=ymin,
-        ymax=ysplit,
-        linewidth=linewidth,
-    )
-    paint_mondrian(
-        n - 1,
-        ax=ax,
-        xmin=xmin,
-        xmax=xsplit,
-        ymin=ysplit,
-        ymax=ymax,
-        linewidth=linewidth,
-    )
-    paint_mondrian(
-        n - 1,
-        ax=ax,
-        xmin=xsplit,
-        xmax=xmax,
-        ymin=ysplit,
-        ymax=ymax,
-        linewidth=linewidth,
-    )
-
-    return ax
+    # call the recursive helper function
+    helper(n)
+    return fig, ax
 
 
 # paint the painting
-ax = paint_mondrian(3)
-# ax = paint_mondrian(8, linewidth=1)
-plt.show()
+if __name__ == "__main__":
+    fig, ax = paint_mondrian(3)
+    plt.show()
