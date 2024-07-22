@@ -1,5 +1,7 @@
 # Recursive Mondrian Generator
 
+An undergraduate coding exercise.
+
 - The script is contained in `mondrian_generator.py`
 - To create a Mondrian painting of order n, run `paint_mondrian(n)` followed by `plt.show()`
 - The larger the choice of n, the more complicated the painting (more lines and rectangles drawn)
